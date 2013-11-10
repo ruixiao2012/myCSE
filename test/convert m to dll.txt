@@ -1,0 +1,256 @@
+ To convert you MATLAB code to C or C++ use mcc, type help mcc for
+more information,
+
+http://blogs.mathworks.com/loren/2011/02/03/creating-c-shared-libraries-and-dlls/
+
+
+
+The better way is to use the external interface functions to create and fill
+the cell array inside your MEX-file/Engine session.
+
+http://www.mathworks.com/access/helpdesk/help/techdoc/matlab_external/bp_kqh7.html
+
+http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/bqoqnz0.html
+
+http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/mxcreatecellarray.html
+
+http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/mxcreatecellmatrix.html
+
+
+
+
+
+To speed up your program, I guess thatin your MATLAB code there are a
+lot of for loops, MATLAB is not good with loops
+
+
+say for i=1:.001:1000 '
+   do any calculation
+   end
+
+
+To overcome this then try
+1. Victorization
+2. Mex Function. either in C or Fortran
+
+Subject: How to convert matlab(m file) to c++(cpp file)
+
+From: Jack Phan
+
+Date: 28 Aug, 2002 14:01:08
+
+Message: 4 of 4
+Reply to this message
+Add author to My Watch List
+View original format
+Flag as spam
+
+Hi,
+
+
+I have done a test for creating .m file to .dll to use in MSVC++ 6.0.
+I put here with step by step of procedure, and hope it could help.
+
+
+   1. You need to have the MATLAB C/C++ Library and MATLAB Compiler
+in your computer.
+   2. Set up your project in MSVC++ for working with MATLAB C++
+Library. Follow the instruction at:
+
+
+ <http://www.mathworks.com/support/solutions/data/27257.shtml>
+
+
+   3. Create the .dll file from MATLAB M-file
+ <http://www.mathworks.com/support/solutions/data/27671.shtml>
+   4. Add the .dll in the appropriate directory and build your .exe
+file in MSVC++ .
+
+
+Jack Phan
+
+
+///////////////////////////////////////////////////////////
+//EXAMPLE STEP BY STEP FOR CREATING .dll FILES USING.
+
+
+1.I have created the file mySquare.m in folder myMatlab
+ (code in step 9)
+
+
+2.Create the command line to get lib file
+
+
+D:\MyDocuments\MathLab\MatlabC++\myMatlab>
+mcc -t -L C -W lib:mySquarelib -T link:lib mySquare.m libmmfile.mlib
+
+
+3.It will create 9 files :
+
+
+mySquare.c
+mySquare.h
+mySquarelib.c
+mySquarelib.h
+mySquarelib.exports
+mySquarelib.dll
+mySquarelib.exp
+mySquarelib.lib
+mySquarelib.mlib
+
+
+4.Add the file mySquarelib.h into project
+
+
+5.Create a new folder MyAddingLib in C:\matlabR12\extern\lib\win32
+then copy file mySquarelib.lib into it
+
+
+6.Add
+,C:\matlabR12\extern\lib\win32\MyAddingLib
+
+
+into Additional library path (click Project Setting in MSVC++ menu,
+click Link,
+Input(in Category)(note: separated by comma)
+
+
+7.Add
+mySquarelib.lib
+
+
+into Object/library modules:
+(note: no comma, separated by a space)
+
+
+(click Project Setting in MSVC++ menu, click Link,
+Input(in Category)
+ 
+8.Add the file mySquarelib.dll into project Debug folder
+(example: my project name is Work02)
+
+
+or if you want you could add the file mySquarelib.dll into
+
+
+C:\matlabR12\extern\lib\win32
+
+
+9.This is my M-file (mySquare.m)
+
+
+function y = mySquare(x)
+y = x*x ;
+
+
+10.This is a project file CPP
+
+
+// test.cpp
+
+
+#include <iostream.h>
+#include "test.h"
+
+
+main() {
+cout <<"Hello, Test for Matlab C++ compiler" << endl ;
+Test obj ;
+double xx = 1.2 ;
+double yy = obj.CalculateMySquare(1.2) ;
+
+
+return 0 ;
+}
+
+
+double Test::CalculateMySquare(double x)
+{
+    mxArray *x_ptr;
+    mxArray *y_ptr;
+double *pVal ;
+
+
+/* Create an mxArray to input into mlfMySquare */
+    x_ptr = mlfScalar(x);
+
+
+/* Call the initial function */
+mySquarelibInitialize() ;
+
+
+/* Call the implementation function */
+y_ptr = mlfMySquare(x_ptr);
+
+
+// NOTE : NEED TO CAPITAL WORD ? M ?
+
+
+/* Call the library termination function */
+mySquarelibTerminate() ;
+
+
+/* The return value from mlfMySquare is an mxArray so we must extract
+the data from it
+
+
+*/
+    pVal = mxGetPr(y_ptr);
+
+
+    double y = *pVal ;
+
+
+return y ;
+
+
+}
+
+
+////////////////////////////////////////////////////////////////
+// test.h
+
+
+#include "matlab.hpp"
+#include "mySquarelib.h"
+
+
+class Test {
+
+
+public:
+double CalculateMySquare( double x );
+
+
+Test(){ ;}
+
+
+~Test(){ ; }
+} ; // end class
+
+
+////////////////////////////////////////////////////////////////////
+
+
+11. Summary : You need only 2 files from 9 files which are
+created from Matlab
+
+
+Ben wrote:
+>
+>
+> To convert you MATLAB code to C or C++ use mcc, type help mcc for
+> more information,
+>
+> To speed up your program, I guess thatin your MATLAB code there are
+a
+> lot of for loops, MATLAB is not good with loops
+>
+> say for i=1:.001:1000 '
+> do any calculation
+> end
+>
+> To overcome this then try
+> 1. Victorization
+> 2. Mex Function. either in C or Fortran
+> 

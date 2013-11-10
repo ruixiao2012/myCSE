@@ -1,0 +1,41 @@
+You can interface with MATLAB under Visual Studio by setting the following options.
+
+Under Project -> Properties -> Linker -> General: change the additional libraries to the relevant MATLAB directory (typically the \extern\lib\win32\microsoft\msvc70\ subdirectory).
+
+Under Project -> Properties -> Preprocessor: add _NDLMATLAB to the `Preprocessor Definitions' section.
+
+Under Project -> C/C++ -> General make sure the additional include directories has the MATLAB header directory, typically in the sub directory \extern\include of your MATLAB base directory.
+
+Under Project -> Linker -> Input: add libmat.lib, libmex.lib and libmx.lib to the `Additional Dependencies'.
+
+other changes to run the project
+-------------------------------
+add .dll files to .exe directory
+under project->c/c++->code->mDd
+change int type to mwSize or mwIndex
+pnoise->initNames pnoise->initParams in writeNoisetoStream function
+-----------------------------------------------------------------------
+.h file configure
+project -> property ->c/c++ -> ³£¹æ ->additional include directory    \extern\include  \extern\yourlib
+include .h file in source file 
+#include "stdafx.h"
+#include "yourheaderfile.h"
+#include "mclmcr.h"
+#include "mclcppclass.h"
+#include "mclmcrrt.h"
+
+------------------------------------------------------------------------
+lib file configure
+project -> property -> linker ->general include dependent iterm directory  \extern\lib\win32\microsoft  \extern\lib\win32\yourlib
+project -> property -> linker ->input   include dependent iterm 
+liblpssopt.lib
+mclmcr.lib
+mclmcrrt.lib
+
+------------------------------------------------------------------
+dll file configure
+add .dll files to .exe directory
+under project->c/c++->code->mDd
+
+----------------------------------------------------------------
+
